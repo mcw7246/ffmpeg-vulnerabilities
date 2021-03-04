@@ -3,23 +3,30 @@ yaml_instructions: |
   ===YAML Primer===
   This is a dictionary data structure, akin to JSON.
   Everything before a colon is a key, and the values here are usually strings
+
   For one-line strings, you can just use quotes after the colon
+
   For multi-line strings, as we do for our instructions, you put a | and then
-  indent by two spaces
+  indent by two spaces.
 
   For readability, we hard-wrap multi-line strings at 80 characters. This is
   not absolutely required, but appreciated.
+  === End YAML Primer===
 curated_instructions: |
-  If you are manually editing this file, then you are "curating" it. Set the
-  entry below to "true" as soon as you start. This will enable additional
-  integrity checks on this file to make sure you fill everything out properly.
-  If you are a student, we cannot accept your work as finished unless curated is
-  set to true.
-curated: false
+  If you are manually editing this file, then you are "curating" it.
+  This will enable additional integrity checks on this file to make sure you
+  fill everything out properly.
+
+  IMPORTANT: If you are a student, we cannot accept your work as finished unless
+  curation_level is properly set.
+
+  The latest curation level is 1.0.
+  If you are curating this vulnerability, set it to the latest curation level.
+curation_level: 0.0
 reported_instructions: |
   What date was the vulnerability reported to the security team? Look at the
-  security bulletins and bug reports. It is not necessarily the same day that the
-  CVE was created.  Leave blank if no date is given.
+  security bulletins and bug reports. It is not necessarily the same day that
+  the CVE was created.  Leave blank if no date is given.
   Please enter your date in YYYY-MM-DD format.
 reported_date:
 announced_instructions: |
@@ -58,12 +65,21 @@ bounty:
   amt:
   announced:
   url:
-reviews: []
+bugs_instructions: |
+  Are there any bug reports that trace to this vulnerability?
+
+  Sometimes a commit message will mention a bug, or the security page on FFmpeg.
+  Sometimes you need to search bug database, which is here:
+      https://trac.ffmpeg.org
 bugs: []
-repo:
 fixes_vcc_instructions: |
-  Please put the commit hash in "commit" below (see my example in
-  CVE-2011-3092.yml). Fixes and VCCs follow the same format.
+  Please put the commit hash in "commit" field below (see my example in
+  CVE-2011-3092.yml).
+
+  Fixes and VCCs follow the same format - they are arrays of hashes.
+
+  The notes field is optional - place anything that clarifies things or you
+  find interesting in there.
 fixes:
 - commit:
   note:
@@ -91,10 +107,15 @@ unit_tested:
     For code: and fix: - your answer should be boolean.
 
     For the code_answer below, look not only at the fix but the surrounding
-    code near the fix in related directories and determine if and was there were unit tests involved for this subsystem. The code
+    code near the fix in related directories and determine if and was there were
+    unit tests involved for this subsystem. The code
 
     For the fix_answer below, check if the fix for the vulnerability involves
     adding or improving an automated test to ensure this doesn't happen again.
+
+    In FFmpeg, they have the FATE suite of regression tests. They are not
+    "unit" tests per se, but are automated regression tests. If the fix for the
+    vulnerability involved adding or updating a FATE suite, then make fix: true.
   code:
   code_answer:
   fix:
@@ -103,15 +124,17 @@ discovered:
   question: |
     How was this vulnerability discovered?
 
-    Go to the bug report and read the conversation to find out how this was
+    Find any relevant bug reports or mailing list conversations read the
+    conversation to find out how this was
     originally found. Answer in longform below in "answer", fill in the date in
-    YYYY-MM-DD, and then determine if the vulnerability was found by a Google
-    employee (you can tell from their email address). If it's clear that the
-    vulenrability was discovered by a contest, fill in the name there.
+    YYYY-MM-DD. If it's clear that the vulenrability was discovered by a
+    contest, fill in the name there.
 
     The automated, contest, and developer flags can be true, false, or nil.
 
-    If there is no evidence as to how this vulnerability was found, then please explain where you looked.
+    If there is no evidence as to how this vulnerability was found, then please
+    explain where you looked. Thus, 'answer' should always have some
+    explanation.
   answer:
   automated:
   contest:
@@ -122,10 +145,11 @@ discoverable:
     this? These are tools that require little knowledge of the domain,
      e.g. automatic static analysis, compiler warnings, fuzzers.
 
-    Examples for true answers: SQL injection, XSS, buffer overflow
+    Examples for true answers: SQL injection, XSS, buffer overflow,
+    use-after-free
 
-    Examples for false: RFC violations, permissions issues, anything
-    that requires the tool to be "aware" of the project's
+    Examples for false: specification violations, permissions issues, anything
+    that would require a tool to be "aware" of the project's
     domain-specific requirements.
 
     The answer field should be boolean. In answer_note, please explain
@@ -135,7 +159,7 @@ discoverable:
 specification:
   instructions: |
     Is there mention of a violation of a specification? For example,
-    an RFC specification, a protocol specification, or a requirements
+    an RFC specification, a protocol specification, codec spec, or a requirements
     specification.
 
     Be sure to check all artifacts for this: bug report, security
@@ -152,15 +176,50 @@ subsystem:
     Look at the path of the source code files code that were fixed to get
     directory names. Look at comments in the code. Look at the bug reports how
     the bug report was tagged.
+
+    In FFmpeg, the Component field is useful here. Often people will say
+      "undetermined" - do more homework than them and make a judgement call if
+      you can.
+
+    Note: a filepath is NOT a subsystem - that's too granular.
+
+    A non-exhaustive examples for ffmpeg are:
+      * avcodec
+      * avdevice
+      * avfilter
+      * avformat
+      * avutil
+      * build system
+      * documentation
+      * fate
+      * ffplay
+      * ffprobe
+      * postproc
+      * swresample
+      * swscale
+      * tools
+      * trac
+      * website
+
+    If this involves fixing multiple subsystems, you can make this an array.
+
+    In 'answer', explain how you arrived at this determination.
   answer:
   name:
 interesting_commits:
   question: |
-    Are there any interesting commits between your VCC(s) and fix(es)?
+    Optional: are there any interesting commits between your VCC(s) and fix(es)?
 
     Write a brief (under 100 words) description of why you think this commit was
     interesting in light of the lessons learned from this vulnerability. Any
     emerging themes?
+
+    This is a catch-all for any interesting commit you find.
+    Example of interesting commits:
+      * Giant refactors
+      * Changing an API or big dependency
+      * A change that looks really sketchy
+      * Commits where a developer mentions security in their message or comments
   commits:
   - commit:
     note:
@@ -177,10 +236,6 @@ i18n:
     you did.
   answer:
   note:
-sandbox:
-  question: |
-    Did this vulnerability violate a sandboxing feature that the system
-    provides? A sandboxing feature is one that
 ipc:
   question: |
     Did the feature that this vulnerability affected use inter-process
@@ -266,7 +321,9 @@ CWE_instructions: |
   apply here, then choose the best one and mention the others in CWE_note.
 CWE:
 CWE_note:
-nickname_instructions: "A catchy name for this vulnerability that would draw attention
-  it. If the\nreport mentions a nickname, use that. Must be under 30 characters. Optional.
-  \n"
+nickname_instructions: |
+  A catchy name for this vulnerability that would draw attention it. If the
+  report mentions a nickname, e.g. "Heartbleed", use that. Or come up with one!
+
+  Must be under 30 characters. Optional. Be appropriate.
 nickname:
