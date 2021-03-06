@@ -56,22 +56,14 @@ end
 # And a commit hash with a note.
 # Either add it to the list if it's not there, or
 # Add the note to the existing commit entry of the list
-def combine_commit_list(commit_list, new_commit, new_note)
-  new_list = if commit_list.map { |c| c['commit'] }.include?(new_commit)
-    commit_list.map do |c|
-      if c['commit'] == new_commit
-        {
-          'commit' => new_commit,
-          'note'   => c['note'] + new_note
-        }
-      else
-        c # no change
-      end
-    end
-  else
-    commit_list + [{ 'commit' => new_commit, 'note' => new_note }]
+def combine_commit_list(commit_list, new_commits, new_note)
+  # require 'byebug';byebug
+  commit_dict = commit_list.inject({}) { |dict, c| dict[c['commit']] = c['note']; dict }
+  new_commits.each do |new_commit|
+    commit_dict[new_commit] ||= ''
+    commit_dict[new_commit] += new_note
   end
-  return new_list
+  return commit_dict.map { |commit, note| {'commit' => commit, 'note' => note} }
 end
 
 # Remove anything from the commit list that is empty, then append one
@@ -98,18 +90,18 @@ CSV.open('migrations/munaiah-data.csv').each do |row|
   cves[cve] ||= skeleton         # init to skeleton if not exists
   cves[cve]['CVE'] = cve          # set the CVE field
   cves[cve]['fixes'] ||= []
-  cves[cve]['fixes'] = combine_commit_list(cves[cve]['fixes'], fix, '')
+  cves[cve]['fixes'] = combine_commit_list(cves[cve]['fixes'], [fix], '')
   cves[cve]['fixes'] = clean_commit_list(cves[cve]['fixes'])
 
   cves[cve]['vccs'] ||= []
-  cves[cve]['vccs'] = combine_commit_list(cves[cve]['vccs'], vccs_from_archeogit, "Identified by archeogit. ")
-  cves[cve]['vccs'] = combine_commit_list(cves[cve]['vccs'], vccs_from_szzunleashed, "Identified by SZZUnleashed. ")
+  cves[cve]['vccs'] = combine_commit_list(cves[cve]['vccs'], vccs_from_archeogit, "Identified by archeogit")
+  cves[cve]['vccs'] = combine_commit_list(cves[cve]['vccs'], vccs_from_szzunleashed, "Identified by SZZUnleashed")
   cves[cve]['vccs'] = clean_commit_list(cves[cve]['vccs'])
 
   # Generate the new YML, clean it up, write it out.
   yml_file = "cves/#{cve}.yml"
   File.open(yml_file, "w+") do |file|
-    yml_txt = cves[cve].to_yaml[4..-1] # strip off ---\n
+    yml_txt = cves[cve].to_yaml()[4..-1] # strip off ---\n
     stripped_yml = ""
     yml_txt.each_line do |line|
       stripped_yml += "#{line.rstrip}\n" # strip trailing whitespace
