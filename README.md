@@ -1,5 +1,5 @@
-# django-vulnerabilities
-Historical vulnerability data for the Django web application framework
+# ffmpeg-vulnerabilities
+Historical vulnerability data for the FFmpeg encoding library
 
 # The Build ![YML & Editorial Checkers](https://github.com/VulnerabilityHistoryProject/ffmpeg-vulnerabilities/workflows/YML%20&%20Editorial%20Checkers/badge.svg)
 
@@ -11,7 +11,7 @@ Please see your course website for instructions. This README is more for people 
 
 # Testing project locally
 
-1. You'll need Ruby 2.4+ (get the latest)
+1. You'll need Ruby 2.7+ (get the latest)
 2. Run `gem install bundler` (if you don't already have bundler)
 3. `cd` to the root of this repo, run `bundle install`
 4. Run `bundle exec rake`
