@@ -87,14 +87,14 @@ CSV.open('migrations/munaiah-data.csv').each do |row|
   vccs_from_archeogit = row[4].to_s.split ','
   vccs_from_szzunleashed = row[6].to_s.split ','
 
-  cves[cve] ||= skeleton         # init to skeleton if not exists
+  cves[cve] ||= {}.merge(skeleton)         # init to skeleton if not exists
   cves[cve]['CVE'] = cve          # set the CVE field
   cves[cve]['fixes'] ||= []
   cves[cve]['fixes'] = combine_commit_list(cves[cve]['fixes'], [fix], '')
   cves[cve]['fixes'] = clean_commit_list(cves[cve]['fixes'])
 
   cves[cve]['vccs'] ||= []
-  cves[cve]['vccs'] = combine_commit_list(cves[cve]['vccs'], vccs_from_archeogit, "Identified by archeogit")
+  cves[cve]['vccs'] = combine_commit_list(cves[cve]['vccs'], vccs_from_archeogit, "Identified by archeogit,")
   cves[cve]['vccs'] = combine_commit_list(cves[cve]['vccs'], vccs_from_szzunleashed, "Identified by SZZUnleashed")
   cves[cve]['vccs'] = clean_commit_list(cves[cve]['vccs'])
 
