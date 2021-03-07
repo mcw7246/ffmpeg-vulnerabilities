@@ -77,10 +77,11 @@ describe 'CVE yml file' do
           end
         end
 
-        it 'have a description and mistakes made written' do
+        it 'have a description, lifetime, and mistakes made written' do
           if at_curation_level?(vuln, 1)
             expect(vuln['description'].to_s).not_to be_empty
             expect(vuln['mistakes']['answer'].to_s).not_to be_empty
+            expect(vuln['lifetime']['answer'].to_s).not_to be_empty
           end
         end
 
